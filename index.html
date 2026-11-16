@@ -1,0 +1,179 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MediaHub</title><script>try{var p=JSON.parse(localStorage.getItem('mh.prefs')||'{}'),d=document.documentElement,t=p.theme;if(t!=='light'&&t!=='system')t='dark';if(t==='system')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';d.dataset.theme=t;d.dataset.scale=(p.scale===125||p.scale===150)?p.scale:100;d.dataset.contrast=p.contrast==='high'?'high':'normal';d.dataset.targets=p.targets==='large'?'large':'normal'}catch(e){var e2=document.documentElement;e2.dataset.theme='dark';e2.dataset.scale=100;e2.dataset.contrast='normal';e2.dataset.targets='normal'}</script><link rel="stylesheet" href="/css/tokens.css"><link rel="stylesheet" href="/css/a11y.css"><link rel="stylesheet" href="/css/base.css"><link rel="stylesheet" href="/css/components.css"><link rel="stylesheet" href="/css/versions.css"><script type="module" src="/js/main.js"></script></head><body>
+<button type="button" class="skip" id="skip">Перейти к содержимому</button>
+<div class="app">
+<aside class="side">
+ <div class="brand"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg></i><b>MediaHub</b></div>
+ <button class="addbtn" id="addBtn" aria-label="Добавить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="lbl">Добавить</span></button>
+ <nav aria-label="Разделы">
+  <a href="#library"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg><span class="lbl">Библиотека</span></a>
+  <a href="#inbox"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l2.5-7h11L20 13M4 13v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5M4 13h4.5l1 2h5l1-2H20"/></svg><span class="lbl">Входящие</span><span class="badge hide" id="ib"></span></a>
+  <a href="#feed"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a14 14 0 0 1 14 14M5 11a8 8 0 0 1 8 8"/><circle cx="6" cy="18" r="1.2"/></svg><span class="lbl">Лента</span><span class="badge hide" id="fb"></span></a>
+  <a href="#downloads"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></svg><span class="lbl">Загрузки</span><span class="badge hide" id="nb"></span></a>
+  <a href="#games"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10a4 4 0 0 1 4 4v2a3 3 0 0 1-5.2 2L14.5 14.5h-5L8.2 16A3 3 0 0 1 3 14v-2a4 4 0 0 1 4-4z"/><path d="M8 10.5v3M6.5 12h3"/></svg><span class="lbl">Игры</span></a>
+  <a href="#settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11M20 18h0"/><circle cx="16" cy="6" r="2.2"/><circle cx="10" cy="12" r="2.2"/><circle cx="18" cy="18" r="2.2"/></svg><span class="lbl">Настройки</span></a>
+ </nav>
+ <button type="button" class="bell" id="bellBtn" aria-label="Уведомления"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0"/></svg><span class="lbl">Уведомления</span><span class="badge hide" id="bellN"></span></button>
+ <div class="disk" id="disk"></div>
+</aside>
+<main id="main" tabindex="-1">
+ <div id="pairBar" class="pairbar hide" role="alert"></div>
+ <section id="v-library">
+  <h1 class="vh" tabindex="-1">Библиотека</h1>
+  <div class="tools">
+   <div class="row"><label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="q" type="search" placeholder="Поиск по названию, автору и теме" aria-label="Поиск" autocomplete="off"></label>
+    <button class="icon" id="scan" title="Найти новые файлы в папке загрузок" aria-label="Найти новые файлы в папке загрузок"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.5-4.5M4 4v3.5h3.5M4 13a8 8 0 0 0 14.5 4.5M20 20v-3.5h-3.5"/></svg></button></div>
+   <div class="row"><div class="chips" id="chips"></div>
+    <select id="gb" aria-label="Группировка"><option value="author">По автору</option><option value="topic">По теме</option><option value="">Без групп</option></select>
+    <select id="so" aria-label="Сортировка"><option value="added">Сначала новые</option><option value="title">По названию</option><option value="size">Сначала большие</option></select></div>
+  </div>
+  <div id="cont"></div>
+  <div id="lib"></div>
+ </section>
+ <section id="v-feed" class="hide"><h1 tabindex="-1">Лента</h1>
+ <p class="lead">Что нового: версии игр, новые главы манги и новые видео отслеживаемых каналов. Приложение само ничего не скачивает, решаете вы.</p>
+ <div class="vtools"><button type="button" class="btn primary" id="f-check">Проверить сейчас</button><button type="button" class="btn" id="f-seenall">Отметить всё прочитанным</button>
+  <span class="chips" id="f-chips" role="group" aria-label="Что показывать"><button type="button" class="chip" data-kind="" aria-pressed="true">Всё</button><button type="button" class="chip" data-kind="game" aria-pressed="false">Игры</button><button type="button" class="chip" data-kind="manga" aria-pressed="false">Манга</button><button type="button" class="chip" data-kind="video" aria-pressed="false">Видео</button><button type="button" class="chip" id="f-unseen" aria-pressed="false">Только непрочитанные</button></span></div>
+ <p class="mu" id="f-status" role="status"></p>
+ <ul id="f-list" class="flist" aria-label="События ленты"></ul>
+ <h2 id="f-wh" tabindex="-1">Что отслеживается</h2><p class="mu" id="f-tracked"></p>
+ <div class="vtools"><label class="vfield"><span>Канал или плейлист (ссылка)</span><input id="f-wurl" type="url" autocomplete="off" placeholder="https://www.youtube.com/@канал" aria-describedby="f-werr"></label>
+  <label class="vfield"><span>Название (необязательно)</span><input id="f-wtitle" type="text" autocomplete="off"></label><button type="button" class="btn" id="f-wadd">Следить</button></div>
+ <p class="field-err" id="f-werr" role="alert" hidden></p>
+ <ul id="f-watches" class="flist" aria-label="Отслеживаемые каналы и плейлисты"></ul>
+</section>
+<section id="v-inbox" class="hide"><h1 tabindex="-1">Входящие</h1><div id="inb"></div></section>
+ <section id="v-downloads" class="hide">
+  <div class="row" style="justify-content:space-between;margin-bottom:6px"><h1 style="margin:0" tabindex="-1">Загрузки</h1><div class="row" style="margin:0"><span class="mu" id="tsp"></span><button class="btn quiet" id="clr">Очистить завершённые</button><button class="btn danger" id="cxl">Отменить всё</button></div></div>
+  <div class="jobs" id="jobs"></div>
+ </section>
+ <section id="v-games" class="hide">
+  <div class="row" style="justify-content:space-between;margin:0 0 12px"><h1 style="margin:0" tabindex="-1">Игры</h1><div class="seg2" role="tablist" aria-label="Раздел игр"><button type="button" role="tab" id="gt-lib" data-tab="lib" data-panel="gtab-lib" aria-selected="true">Библиотека</button><button type="button" role="tab" id="gt-ver" data-tab="ver" data-panel="gtab-ver" aria-selected="false">Версии и чистка</button></div></div>
+  <div id="gtab-lib" role="tabpanel" aria-labelledby="gt-lib">
+   <div class="gtools"><label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="gq" type="search" placeholder="Поиск по названию, жанру, разработчику" aria-label="Поиск игр" autocomplete="off"></label>
+    <select id="gso" aria-label="Сортировка"><option value="name">По названию</option><option value="added">Недавно добавленные</option><option value="upd">Сначала с обновлением</option><option value="size">По размеру</option><option value="release">По дате выхода</option><option value="rating">По моей оценке</option></select>
+    <details class="gen" id="gen"><summary id="gens">Жанры</summary><div id="genl"></div></details>
+    <span style="flex:1"></span><button type="button" class="btn hide" id="grep" title="У этих игр есть старые версии: сохранения и перевод переедут в новую, старые уйдут в Корзину">Заменить старые версии</button><button type="button" class="btn" id="gscan" title="Заново просмотреть папку игр: найти только что скачанное">Найти скачанные</button><button type="button" class="btn" id="gchk" title="Открыть тему каждой игры в вашем браузере и сверить версию">Проверить обновления</button></div>
+   <div class="row" style="margin:0 0 16px;justify-content:space-between"><div class="chips" id="gchips" style="margin:0"></div><div class="row" style="margin:0"><textarea id="gadd" rows="1" placeholder="Ссылки на темы игр (по одной в строке)" aria-label="Ссылки на темы игр, по одной в строке" style="width:min(320px,100%);flex:1 1 12rem;min-height:40px;height:40px;resize:vertical"></textarea><button type="button" class="btn" id="gaddb">Добавить игру</button></div></div><div id="ggrid" class="gg"></div>
+  </div>
+  <div id="gtab-ver" class="hide" role="tabpanel" aria-labelledby="gt-ver">
+   <p class="lead">Находит старые версии игр в вашей папке и отправляет их в Корзину (оттуда можно восстановить). Вкладки браузера можно сверить с играми на ПК.</p>
+   <div class="seg2" role="tablist" aria-label="Режим раздела" id="vtabs"><button type="button" role="tab" id="vt-v" data-tab="v" data-panel="vp-v" aria-selected="true">Старые версии</button><button type="button" role="tab" id="vt-t" data-tab="t" data-panel="vp-t" aria-selected="false">Вкладки браузера</button></div>
+   <div id="vp-v" role="tabpanel" aria-labelledby="vt-v">
+    <div class="vscan"><label class="vfield"><span>Папка с играми</span><input id="v-root" type="text" autocomplete="off" placeholder="например, G:\PG"></label>
+     <label class="vfield"><span>Структура папок</span><select id="v-layout"><option value="auto">Определить самой</option><option value="flat">Все папки — игры</option><option value="nested">Все папки — категории (new1, new2…)</option></select></label>
+     <button type="button" class="btn primary" id="v-scan">Сканировать</button></div>
+    <progress id="v-prog" class="vprog" max="100" value="0" hidden aria-label="Ход сканирования папки"></progress>
+    <p class="field-err" id="v-err" role="alert" hidden></p>
+    <dl class="vcards" aria-label="Сводка"><div><dt>Игр в библиотеке</dt><dd id="v-c1">—</dd></div><div><dt>Игр с несколькими версиями</dt><dd id="v-c2">—</dd></div><div><dt>Старых версий</dt><dd id="v-c3">—</dd></div><div class="free"><dt>Можно освободить</dt><dd id="v-c4">—</dd></div></dl>
+    <div class="vtools"><label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="v-q" type="search" placeholder="Слова, -исключить, >500мб" aria-label="Поиск по версиям: слова через пробел, минус исключает, знак больше или меньше задаёт размер" aria-describedby="v-qh" autocomplete="off"></label>
+     <span class="chips" id="v-chips"><button type="button" class="chip" aria-pressed="false" data-chip="old">Только старые</button><button type="button" class="chip" aria-pressed="false" data-chip="sure">Только уверенные</button><button type="button" class="chip" aria-pressed="false" data-chip="keep">Скрыть оставляемые</button></span>
+     <select id="v-sort" aria-label="Порядок"><option value="name">По названию</option><option value="free">Больше места сначала</option><option value="new">Новые сначала</option><option value="sure">Уверенные сначала</option></select>
+     <span class="mu" id="v-count" role="status"></span></div>
+    <p class="mu vhint" id="v-qh">Клавиша «/» переходит к поиску. Двойной щелчок по строке показывает папку в проводнике.</p>
+    <div class="vlayout"><div id="v-list"><p class="empty">Укажите папку и нажмите «Сканировать».</p></div><aside id="v-detail" class="vdetail" aria-label="Подробности выбранной версии" aria-live="polite"><p class="mu">Выберите версию в списке.</p></aside></div>
+    <div class="vfoot"><button type="button" class="btn" id="v-selold">Все старые</button><button type="button" class="btn" id="v-selsure">Старые в уверенных</button><button type="button" class="btn" id="v-selnone">Снять выбор</button>
+     <span class="mu vgrow" id="v-selinfo" role="status" tabindex="-1">Ничего не выбрано</span><button type="button" class="btn danger" id="v-trash" disabled>В Корзину…</button></div>
+   </div>
+   <div id="vp-t" role="tabpanel" aria-labelledby="vt-t" class="hide">
+    <dl class="vcards" aria-label="Сводка по вкладкам"><div><dt>Вкладок (без дублей)</dt><dd id="v-t1">—</dd></div><div><dt>Игровых</dt><dd id="v-t2">—</dd></div><div><dt>Уже есть на ПК</dt><dd id="v-t3">—</dd></div><div class="free"><dt>Нужно обновить</dt><dd id="v-t4">—</dd></div></dl>
+    <div class="vtools"><label class="btn" for="v-tfile">Выбрать файл со вкладками</label><input type="file" id="v-tfile" accept=".txt,.md,.csv,.html,text/*" class="vfile"><button type="button" class="btn" id="v-tpaste">Вставить текст…</button>
+     <span class="mu" id="v-tname" role="status">Нужен выполненный скан папки. Форматы строк: [заголовок](ссылка), «заголовок – ссылка» или просто ссылка.</span></div>
+    <div class="vtools" id="v-ttools" hidden><label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><input id="v-tq" type="search" placeholder="Поиск по вкладкам и играм" aria-label="Поиск по вкладкам и играм" autocomplete="off"></label>
+     <span class="chips" id="v-tchips"><button type="button" class="chip" aria-pressed="false" data-chip="close">Можно закрыть</button><button type="button" class="chip" aria-pressed="false" data-chip="update">Обновить</button><button type="button" class="chip" aria-pressed="false" data-chip="missing">Нет на ПК</button><button type="button" class="chip" aria-pressed="false" data-chip="unsure">Не уверен</button><button type="button" class="chip" aria-pressed="false" data-chip="other">Показать прочее</button></span>
+     <select id="v-tsort" aria-label="Порядок вкладок"><option value="verdict">По вердикту</option><option value="name">По названию</option><option value="site">По сайту</option></select><span class="mu" id="v-tcount" role="status"></span></div>
+    <div class="vlayout"><div id="v-tlist"><p class="empty">Выберите файл со вкладками: здесь появится сравнение с играми на ПК.</p></div><aside id="v-tdetail" class="vdetail" aria-label="Подробности вкладки" aria-live="polite"><p class="mu">Выберите вкладку в списке.</p></aside></div>
+    <div class="vfoot"><button type="button" class="btn" id="v-eclose" disabled>Ссылки для закрытия</button><button type="button" class="btn" id="v-eupd" disabled>Список на обновление</button><button type="button" class="btn" id="v-ekeep" disabled>Вкладки, которые остаются</button>
+     <span class="mu vgrow" id="v-tmsg" role="status">Приложение ничего не открывает и не закрывает само: списки копируются и сохраняются в файл.</span></div>
+   </div>
+  </div>
+  <dialog class="gpanel" id="gpanel" aria-label="Карточка игры"></dialog>
+ </section>
+ <section id="v-settings" class="hide"><div class="set">
+  <h1 tabindex="-1">Настройки</h1>
+  <div class="sg"><h2>Отображение</h2>
+    <div class="sr"><div><label class="sl" for="d_scale">Размер текста</label><small id="d_scale-h">Меняет размер текста и элементов во всём приложении</small></div><div class="ctl"><select id="d_scale" aria-describedby="d_scale-h"><option value="100">100 %</option><option value="125">125 %</option><option value="150">150 %</option></select></div></div>
+    <div class="sr"><div><label class="sl" for="d_contrast">Контраст</label><small id="d_contrast-h">Высокий контраст усиливает текст и границы</small></div><div class="ctl"><select id="d_contrast" aria-describedby="d_contrast-h"><option value="normal">Обычный</option><option value="high">Высокий</option></select></div></div>
+    <div class="sr"><div><label class="sl" for="d_theme">Тема оформления</label></div><div class="ctl"><select id="d_theme"><option value="dark">Тёмная</option><option value="light">Светлая</option><option value="system">Как в системе</option></select></div></div>
+    <div class="sr"><div><label class="sl" for="d_targets">Крупные цели нажатия</label><small id="d_targets-h">Кнопки и переключатели не меньше 44 пикселей</small></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="d_targets" aria-describedby="d_targets-h"></div></div>
+    <div class="sr"><div><label class="sl" for="d_keys">Горячие клавиши</label><small id="d_keys-h">g и буква для разделов, j и k для карточек, ? для справки</small></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="d_keys" aria-describedby="d_keys-h"></div></div>
+   </div>
+   <div class="sg"><h2>Загрузка</h2>
+   <div class="sr"><div><label class="sl" for="s_folder">Папка загрузок</label><small id="s_folder-h">Сюда сохраняются видео, музыка, манга и сайты</small></div><div class="ctl"><input id="s_folder" aria-describedby="s_folder-h"></div></div>
+   <div class="sr"><div><label class="sl" for="s_res">Качество видео</label><small id="s_res-h">Если выбранного разрешения нет, берётся ближайшее ниже</small></div><div class="ctl"><select id="s_res" aria-describedby="s_res-h"><option value="best">Лучшее</option><option>2160</option><option>1440</option><option>1080</option><option>720</option><option>480</option><option>360</option></select></div></div>
+   <div class="sr"><div><label class="sl" for="s_afmt">Формат звука</label></div><div class="ctl"><select id="s_afmt"><option>mp3</option><option>m4a</option><option>opus</option><option>flac</option></select></div></div>
+   <div class="sr"><div><label class="sl" for="s_subs_on">Субтитры</label><small id="s_subs_on-h">Языки через запятую</small></div><div class="ctl"><input id="s_subs_langs" aria-label="Языки субтитров, через запятую" style="max-width:110px"><input type="checkbox" role="switch" class="sw" id="s_subs_on" aria-describedby="s_subs_on-h"></div></div>
+   <div class="sr"><div><label class="sl" for="s_thumbs">Обложки</label><small id="s_thumbs-h">Сохранять картинку к видео и музыке</small></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="s_thumbs" aria-describedby="s_thumbs-h"></div></div>
+   <div class="sr"><div><label class="sl" for="s_skip">Пропускать уже скачанное</label></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="s_skip"></div></div>
+   <div class="sr"><div><label class="sl" for="s_workers">Загрузок одновременно</label><small id="s_workers-h">Уменьшение действует после перезапуска</small></div><div class="ctl"><input type="number" id="s_workers" aria-describedby="s_workers-h" min="1" max="12" style="max-width:90px"></div></div>
+   <div class="sr"><div><label class="sl" for="s_limit_mb">Ограничение скорости, МБ/с</label><small id="s_limit_mb-h">0 — без ограничения</small></div><div class="ctl"><input type="number" id="s_limit_mb" aria-describedby="s_limit_mb-h" min="0" step="0.5" style="max-width:90px"></div></div>
+  </div>
+  <div class="sg"><h2>Сайты для офлайн-просмотра</h2>
+   <div class="sr"><div><label class="sl" for="s_depth">Глубина</label><small id="s_depth-h">Сколько переходов по ссылкам от первой страницы</small></div><div class="ctl"><select id="s_depth" aria-describedby="s_depth-h"><option value="0">Только страница</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div></div>
+   <div class="sr"><div><label class="sl" for="s_maxp">Страниц не больше</label></div><div class="ctl"><input type="number" id="s_maxp" min="1" max="500" style="max-width:90px"></div></div>
+   <div class="sr"><div><label class="sl" for="s_videos">Скачивать видео со страниц</label></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="s_videos"></div></div>
+  </div>
+  <div class="sg"><h2>Манга</h2>
+   <div class="sr"><div><label class="sl" for="s_manga_via">Где скачивать мангу</label><small id="s_manga_via-h">«В моём браузере» использует ваш вход на сайте и работает через расширение в Яндекс Браузере, Firefox, Edge и Chrome: на время загрузки открывается небольшое окно сайта, его не закрывайте. «Отдельным окном» запускает собственный браузер MediaHub. «Автоматически»: через расширение, если оно на связи</small></div><div class="ctl"><select id="s_manga_via" aria-describedby="s_manga_via-h"><option value="auto">Автоматически</option><option value="browser">В моём браузере (расширение)</option><option value="playwright">Отдельным окном</option></select></div></div>
+   <div class="sr"><div><label class="sl" for="s_show_browser">Показывать окно браузера</label><small id="s_show_browser-h">Только для варианта «Отдельным окном»: включите, если сайт просит пройти проверку «я не робот»</small></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="s_show_browser" aria-describedby="s_show_browser-h"></div></div>
+  </div>
+  <div class="sg"><h2>Закрытый контент</h2>
+   <div class="sr"><div><label class="sl" for="s_cookie_file">Файл cookies.txt</label><small id="s_cookie_file-h">Для видео и сайтов, где нужен вход</small></div><div class="ctl"><input id="s_cookie_file" aria-describedby="s_cookie_file-h" placeholder="C:\путь\cookies.txt"></div></div>
+   <div class="sr"><div><label class="sl" for="s_cookie_browser">Или cookie из браузера</label><small id="s_cookie_browser-h">Нужны и для манги в варианте «Отдельным окном». Firefox отдаёт cookie всегда. Edge и Chrome шифруют их и блокируют, пока открыты: закройте браузер или качайте через расширение</small></div><div class="ctl"><select id="s_cookie_browser" aria-describedby="s_cookie_browser-h"><option value="">Не использовать</option><option>chrome</option><option>edge</option><option>firefox</option><option>brave</option><option>opera</option></select></div></div>
+  </div>
+  <div class="sg"><h2>Расширение для браузера</h2>
+   <div class="sr"><div><b>Подключение</b><small id="extSt"></small></div><div class="ctl" id="extList"></div></div>
+   <div class="sr" style="grid-template-columns:1fr"><div><b>Как установить</b><p class="mu" style="margin:6px 0 0"><b>Яндекс Браузер, Chrome, Edge, Brave.</b> Откройте <code>chrome://extensions</code> (в Яндекс Браузере <code>browser://extensions</code>), включите «Режим разработчика», нажмите «Загрузить распакованное расширение» и выберите папку <code id="extDir"></code></p><p class="mu" style="margin:8px 0 0"><b>Firefox.</b> Откройте <code>about:debugging#/runtime/this-firefox</code>, нажмите «Загрузить временное дополнение» и выберите файл <code id="extFf"></code> Временное дополнение пропадает после перезапуска Firefox. Чтобы оно осталось насовсем, подпишите его бесплатно на addons.mozilla.org (режим «Для собственного распространения», архив <code>MediaHub-Firefox.zip</code>) или используйте Firefox Developer Edition.</p><p class="mu" style="margin:8px 0 0">Дальше: значок MediaHub на панели браузера, выбор вкладок, «Показать список в приложении» и подтверждение подключения здесь.</p><small style="display:block;margin-top:8px">Расширение видит только адрес и название отправленных вкладок. При загрузке манги оно открывает окно сайта и читает список глав и адреса страниц. Пароли, cookies, история и закладки не читаются.</small></div></div>
+  </div>
+  <div class="sg"><h2>Игры</h2>
+   <div class="sr"><div><label class="sl" for="s_feed_hours">Проверять ленту каждые, часов</label><small id="s_feed_hours-h">0 — только по кнопке «Проверить сейчас». Проверяются новые главы манги (mangabuff) и новые видео отслеживаемых каналов; игры проверяются отдельным заданием и нужны расширение и открытый браузер</small></div><div class="ctl"><input type="number" id="s_feed_hours" min="0" step="1" aria-describedby="s_feed_hours-h"></div></div>
+    <div class="sr"><div><label class="sl" for="s_games_check_hours">Проверять новые версии каждые, часов</label><small id="s_games_check_hours-h">0 — выключено. Нужны расширение и открытый браузер; тема каждой игры читается по одной с паузой, под вашим входом. Отключить слежение у отдельной игры можно в её панели</small></div><div class="ctl"><input type="number" id="s_games_check_hours" aria-describedby="s_games_check_hours-h" min="0" step="1" style="max-width:90px"></div></div>
+   <div class="sr"><div><label class="sl" for="s_games_root">Папка с играми</label><small id="s_games_root-h">Найденные игры появятся в библиотеке и во вкладке «Игры». Папка просматривается сразу после сохранения</small></div><div class="ctl"><input id="s_games_root" aria-describedby="s_games_root-h" placeholder="G:\Игры"></div></div>
+    <div class="sr"><div><label class="sl" for="s_game_marker">Помечать папки игр</label><small id="s_game_marker-h">Записывать в папку игры из темы маленький файл .mediahub.json: так игра находится после переименования или переноса папки. Содержимое игры и порядок версий он не меняет</small></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="s_game_marker" aria-describedby="s_game_marker-h"></div></div>
+    <div class="sr"><div><label class="sl" for="s_lan">Доступ с других устройств в этой сети</label><small id="s_lan-h">Телефон, планшет или другой компьютер в том же Wi-Fi смогут смотреть, читать и слушать библиотеку. Вход по PIN; загрузки, настройки, удаление и игры остаются только на этом компьютере. Соединение без шифрования: включайте только в своей сети. После изменения перезапустите MediaHub</small></div><div class="ctl"><input type="checkbox" role="switch" class="sw" id="s_lan" aria-describedby="s_lan-h"></div></div>
+    <div class="sr"><div><label class="sl" for="lan_pin">PIN для входа с других устройств</label><small id="lan_pin-h">Не короче 6 символов, не из одинаковых знаков. Хранится только в виде хэша</small></div><div class="ctl"><input id="lan_pin" type="password" autocomplete="new-password" aria-describedby="lan_pin-h"> <button type="button" class="btn" id="lan_pin_save">Сохранить PIN</button></div></div>
+    <div class="sr"><div id="lan_status" role="status" class="mu" aria-live="polite"></div><div class="ctl"><button type="button" class="btn" id="lan_logout" hidden>Выйти на всех устройствах</button></div></div>
+  </div>
+ </div></section>
+</main>
+<div class="transport hide" id="bar"><div><div class="tt" id="bt"></div><div class="ts" id="bs"></div></div><div class="ts" id="bp"></div><div class="bar" aria-hidden="true"><i id="bf" style="width:0"></i></div><a class="tlink" href="#downloads"><span class="vh">Открыть загрузки</span></a></div>
+</div>
+
+<dialog id="addDlg" aria-labelledby="addH">
+ <div class="dh"><h2 id="addH">Добавить</h2><button class="x" aria-label="Закрыть" id="addX"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+ <div class="db">
+  <textarea id="urls" aria-label="Ссылки" placeholder="Вставьте ссылки, по одной на строку"></textarea>
+  <div class="seg" role="radiogroup" aria-label="Что скачиваем"></div>
+  <p class="mu" id="hint" style="margin:0 0 4px"></p>
+  <details class="more" id="more"><summary>Дополнительно</summary>
+   <div data-for="site"><span class="l" style="display:block;margin-bottom:6px;font-weight:550">Сколько страниц скачать</span>
+    <div class="pick"><input type="range" id="maxp" min="1" max="500" value="50" aria-label="Число страниц"><b id="maxpv" style="min-width:34px;text-align:right">50</b><button type="button" class="btn" data-n="1" aria-label="Выбрать 1 страницу">1</button><button type="button" class="btn" data-n="10" aria-label="Выбрать 10 страниц">10</button><button type="button" class="btn" data-n="100" aria-label="Выбрать 100 страниц">100</button><button type="button" class="btn" data-n="500" aria-label="Выбрать все страницы">Все</button></div>
+    <div class="row" style="margin-top:0"><button class="btn" id="find">Найти страницы</button><span class="mu" id="fcount"></span></div><div id="plist" class="hide"></div></div>
+   <div data-for="manga"><span style="display:block;margin-bottom:6px;font-weight:550">Какие главы</span><div class="row" style="margin:0"><span class="mu">с</span><input id="mf" type="number" min="1" aria-label="С главы" placeholder="первой" style="width:100px"><span class="mu">по</span><input id="ml" type="number" min="1" aria-label="По главу" placeholder="последней" style="width:136px"></div></div>
+   <div><span style="display:block;margin-bottom:6px;font-weight:550">Запланировать</span><div class="row" style="margin:0"><input type="datetime-local" id="when" aria-label="Время начала"><label class="row" style="margin:0;gap:8px"><input type="checkbox" role="switch" class="sw" id="daily"> Повторять каждый день</label></div></div>
+   <div><span style="display:block;margin-bottom:6px;font-weight:550">Список из файла</span><button type="button" class="btn" id="txtBtn">Выбрать файл .txt</button><input type="file" id="txt" accept=".txt" hidden></div>
+  </details>
+  <div class="pv hide" id="pv"></div>
+ </div>
+ <div class="df"><button class="btn quiet" id="chk">Проверить размер</button><button class="btn" id="addC">Отмена</button><button class="btn primary" id="go">Скачать</button></div>
+</dialog>
+<dialog id="editDlg" aria-labelledby="editH"><div class="dh"><h2 id="editH">Изменить</h2></div>
+ <div class="db"><p class="mu" id="editT" style="margin:0 0 14px"></p><label class="field"><span>Автор</span><input id="eAuthor"></label><label class="field"><span>Тема</span><input id="eTopic"></label><div id="eMeta"></div>
+ <p class="mu" style="margin:0">Файлы видео и музыки переедут в папку нового автора.</p></div>
+ <div class="df"><button class="btn" id="editC">Отмена</button><button class="btn primary" id="editS">Сохранить</button></div></dialog>
+<dialog id="vTrashDlg" aria-labelledby="vTrashH"><div class="dh"><h2 id="vTrashH">В Корзину</h2></div><div class="db" id="vTrashBody"></div>
+ <div class="df"><button type="button" class="btn" id="vTrashNo">Отмена</button><button type="button" class="btn danger" id="vTrashYes">Отправить в Корзину</button></div></dialog>
+<dialog id="vPasteDlg" aria-labelledby="vPasteH"><div class="dh"><h2 id="vPasteH">Вставьте вкладки</h2></div><div class="db"><label for="v-ptext" class="mu">По строке на вкладку: [Заголовок](https://…), «Заголовок – ссылка» или ссылка</label><textarea id="v-ptext" rows="12" style="width:100%;margin-top:8px"></textarea></div>
+ <div class="df"><button type="button" class="btn" id="vPasteNo">Отмена</button><button type="button" class="btn primary" id="vPasteYes">Сравнить</button></div></dialog>
+<dialog id="repDlg" aria-labelledby="repH"><div class="dh"><h2 id="repH">Заменить старые версии?</h2></div>
+ <div class="db"><p class="mu" id="repLead" style="margin:0 0 12px">Сохранения и русский перевод старых версий переедут в новую. Существующие файлы новой версии не перезаписываются.</p><ul class="gul" id="repList"></ul>
+ <label class="chkrow" style="margin-top:14px"><input type="checkbox" role="switch" class="sw" id="repDel" checked><span>Старые версии отправить в Корзину (их можно восстановить)</span></label></div>
+ <div class="df"><button type="button" class="btn" id="repC">Отмена</button><button type="button" class="btn primary" id="repGo">Заменить</button></div></dialog>
+<dialog id="delDlg" aria-labelledby="delH"><div class="dh"><h2 id="delH">Удалить?</h2></div>
+ <div class="db"><p id="delT" style="margin:0"></p></div>
+ <div class="df"><button class="btn" id="delC">Отмена</button><button class="btn" id="delL">Убрать из библиотеки</button><button class="btn danger" id="delF">Удалить с диска</button></div></dialog>
+<dialog id="helpDlg" aria-labelledby="helpH"><div class="dh"><h2 id="helpH">Горячие клавиши</h2><button class="x" aria-label="Закрыть" id="helpX"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="db"><table class="keys"><caption class="vh">Список горячих клавиш</caption><thead><tr><th scope="col">Клавиши</th><th scope="col">Действие</th></tr></thead><tbody>
+<tr><td><kbd>g</kbd> затем <kbd>l</kbd></td><td>Библиотека</td></tr><tr><td><kbd>g</kbd> затем <kbd>i</kbd></td><td>Входящие</td></tr><tr><td><kbd>g</kbd> затем <kbd>d</kbd></td><td>Загрузки</td></tr><tr><td><kbd>g</kbd> затем <kbd>g</kbd></td><td>Игры</td></tr><tr><td><kbd>g</kbd> затем <kbd>s</kbd></td><td>Настройки</td></tr><tr><td><kbd>g</kbd> затем <kbd>n</kbd></td><td>Журнал уведомлений</td></tr><tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Следующая и предыдущая карточка</td></tr><tr><td><kbd>/</kbd></td><td>Поиск</td></tr><tr><td><kbd>?</kbd></td><td>Эта справка</td></tr></tbody></table><p class="mu">Клавиши не работают в полях ввода и при нажатых Ctrl, Alt, Meta. Отключить их можно здесь или в Настройках.</p></div><div class="df"><button class="btn" id="keysOff" type="button">Отключить горячие клавиши</button><button class="btn primary" type="button" id="helpC">Закрыть</button></div></dialog>
+<div id="mh-live-polite" class="vh" role="status" aria-live="polite" aria-atomic="true"></div><div id="mh-live-assertive" class="vh" role="alert" aria-live="assertive" aria-atomic="true"></div>
+<dialog id="logDlg" aria-labelledby="logH"><div class="dh"><h2 id="logH">Уведомления</h2><button class="x" aria-label="Закрыть" id="logX"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="db"><ul class="loglist" id="logList"></ul></div></dialog>
+<div id="toastBox"></div>
+</body></html>

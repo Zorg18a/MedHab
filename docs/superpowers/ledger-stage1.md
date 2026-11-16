@@ -1,0 +1,51 @@
+# SDD ledger — plan: docs/superpowers/plans/2026-11-08-mediahub-a11y-foundation.md
+Executor: executing-plans inline (no subagent tool in this harness).
+Ruling: executing inline, not subagent-driven — harness has no subagent tool, partner's choice cannot be honored — per-task independent review is lost, final review is a self-review — cost if wrong: weaker review than requested.
+Ruling: pytest is not installable offline; tests stay pytest-style as in the plan, run locally through a throwaway shim (/home/claude/shim/pytest.py, outside the project) — gives red/green evidence without changing deliverables — cost if wrong: first run on partner's real pytest may expose shim differences.
+Ruling: axe-core is not available offline; run_axe() skips when tests/vendor/axe.min.js is absent — axe-based tests cannot be run here — cost if wrong: axe violations (esp. color-contrast in axe's own computation) are unverified until partner adds the file.
+Ruling: Playwright Chromium from /opt/pw-browsers via PLAYWRIGHT_BROWSERS_PATH — only available browser — cost if wrong: Firefox/Yandex differences unverified.
+Task 0: complete (commit cbc34c8, tests: tests/test_smoke.py -> 1/1 pass; note: red phase was 'no fixtures', axe.min.js absent -> see Ruling above)
+Task 1: complete (commit 886f832, tests: tests -> 5/5 pass, red seen on 2 content-type tests)
+Task 2: Ruling: component borders use new token --edge (>=3:1), decorative --line/--line2 stay soft — spec says make --line/--line2 >=3:1 but that would make every divider heavy; WCAG 1.4.11 covers control boundaries only — cost if wrong: if partner wants dividers strong too, change token values (tests already cover --edge only).
+Task 2: Ruling: root size via percentages (100/125/150%) not px — respects the browser's own font setting — cost if wrong: none visible at default.
+Task 2: Ruling: extra tokens --focus, --amber-fg, --float, --ink0 for focus ring/amber text/floating surfaces/gradient so light theme stays readable — cost if wrong: one more token set to keep.
+Task 2: complete (commit 4f96576, tests: tests -> 10/10 pass; red seen: 4 contrast tests KeyError before tokens; screenshots dark+light checked)
+Task 3: Ruling: plan test used page.on('pageerror', errors.append) which Playwright-python rejects for builtins — use lambda (plan text patched too) — cost if wrong: none. 
+Task 3: complete (commit ab72878, tests: tests -> 16/16 pass; red seen 6/6 before impl)
+Task 4: Ruling: skip link is a <button> that focuses #main, not <a href="#main"> — an anchor would change the hash and trigger the hash router (route() would fall back to library) — cost if wrong: none.
+Task 4: Ruling: focus moves to the section h1 only on hash change, not on first load — otherwise the first Tab would skip the skip-link (plan tests 1 and 2 contradict each other); test_route split into title-on-load and focus-on-change — cost if wrong: first-load screen reader users hear page title only.
+Task 4: Ruling: stub_inbox in conftest used a wrong data shape (tabs); real /api/inbox is {batches:[{batch,pending,created,rows:[{id,status,kind,url,title,host,state,state_text,action,close,fate}]}]} — will be fixed in Task 11 — cost if wrong: none.
+Task 4: complete (commit 4374f4e, tests: tests -> 29/29 pass; red seen 12/13 before impl; sweep of all 5 views: 0 page errors)
+Task 5: Ruling: toast element has no role=status; speech goes only through the two live regions — plan said role=status plus a live-region duplicate, which makes screen readers read every message twice — cost if wrong: none for sighted users; if partner wants role=status back, one attribute.
+Task 5: Ruling: at most 3 toasts on screen (older ones stay in the log) — 60 rapid notifications would otherwise flood the page — cost if wrong: an older toast with an action button can vanish early (action still reachable in the log).
+Task 5: complete (commit 34d9742, tests: tests -> 37/37 pass; red seen 8/8 before impl)
+Task 6: Ruling: initTabs returns {sync, select} (plan said void) and tabs.js also exports initRadios for the add-dialog radiogroup — legacy code selects tabs programmatically and needs to resync roving tabindex; Task 9 needs radiogroup arrows — cost if wrong: two extra exports.
+Task 6: complete (commit e106d12, tests: tests -> 48/48 pass; red seen 11/11 before impl)
+Task 7: Ruling: added "/" behaviour per view (games -> #gq, library -> #q, others navigate to library then focus) and a "disable" button inside the help dialog — plan only said "/ focuses search"; the button makes the 2.1.4 off-switch discoverable from where the shortcuts are listed — cost if wrong: two small extras.
+Task 7: complete (commit 9d494f1, tests: tests -> 56/56 pass; red seen 6/8 (the 2 negative tests pass trivially before impl))
+Task 4/8: Defect found by screenshot in Task 8: my visually-hidden helper class .sr (Task 4) collided with the existing settings-row class .sr and hid every settings row (DOM tests could not see it). Renamed helper to .vh in CSS and markup; added test_settings_rows_are_actually_rendered. Lesson: DOM tests alone miss layout regressions, so each migrated view gets a render check and a screenshot look — cost if wrong: none, fixed.
+Task 8: Ruling: display theme control is labelled "Тема оформления" (plan test used "Тема"): the edit dialog already has a field labelled "Тема", which made the test locator ambiguous — cost if wrong: none.
+Task 8: complete (commit 4f22e72, tests: tests -> 80 passed, 1 skipped (axe, file missing); red seen 21/23 before impl)
+Task 9: Ruling: size-preview (#pv) and page-count (#fcount) are announced once when the check finishes, not through a polling live region — they update every ~1 s and would spam a screen reader (matches the plan's milestone idea for downloads) — cost if wrong: no spoken running totals.
+Task 9: Ruling: test fixtures page/touch_page now reset the shared library DB before each test (session server accumulated items and made tests order-dependent) — cost if wrong: none.
+Task 9: Note: js/core/fmt.js holds copies of B/ETA/I/IC that legacy.js still defines; duplicates disappear when legacy is removed in Task 12. Legacy calls into modules via window.MH; modules call legacy poll via window.poll until Task 10.
+Task 9: complete (commit 0b3d17d, tests: tests -> 91 passed, 1 skipped (axe); red seen 9/11 before impl; screenshots of library and add dialog checked)
+Task 10: Ruling: bottom bar link is an absolutely positioned <a class="tlink"> overlay inside #bar (with visually-hidden text "Открыть загрузки"), not a wrapper — keeps the existing grid layout and satisfies the plan test (an <a> inside #bar, no role=status on #bar) — cost if wrong: none.
+Task 10: Ruling: a job that first appears already finished/errored after the first poll IS announced (first poll after page load is a silent baseline) — otherwise a job that starts and fails between two polls is never reported — cost if wrong: none.
+Task 10: Note: legacy still reaches the module via window.poll / MH.drawJobs; modules reach legacy via window.disk / window.pollExt until Task 11/12.
+Task 10: complete (commit 8db804e, tests: tests -> 99 passed, 1 skipped (axe); red seen 7/8 before impl; screenshots of list and bar checked)
+Task 11: Ruling: chipHtml gained an optional data:{...} option (extra data-* attributes) so inbox chips can carry the batch id — plan interface had no place for it — cost if wrong: one optional parameter.
+Task 11: Ruling: stub_inbox in conftest rewritten to the real /api/inbox shape (batches[].rows[]) and the extension pairing/forget code moved into views/inbox.js together with the inbox (same legacy block) — cost if wrong: none.
+Task 11: Note: confirm payload keeps batch as a string like legacy did (the test accepts it) — behavior unchanged.
+Task 11: complete (commit 02fdfc4, tests: tests -> 106 passed, 2 skipped (axe); red seen 5/7 before impl; screenshot of inbox checked)
+Task 12: Ruling: routing (route/afterRoute) and the polling start moved into js/main.js, disk() into js/core/disk.js — legacy.js had nothing else left, so it was deleted (js/legacy.js gone, window.poll/window.disk bridges gone) — cost if wrong: none.
+Task 12: Ruling: fieldError() got an optional anchor argument (where the message is inserted) because the games add-link input sits inside a nowrap flex row — cost if wrong: one optional parameter.
+Task 12: Note: a scripting slip in my edit (a stray .replace on None) once left the tree half-edited with legacy.js already deleted; caught by the red games run and redone — the commit contains the complete state.
+Task 12: complete (commit 432d3b0, tests: tests -> 118 passed, 3 skipped (axe); red seen 13/13 before impl; screenshot of the panel dialog checked)
+Task 13: Ruling: reader.html reads the same mh.prefs (copy of the early head script) and the shared /css/tokens.css, so theme, text size, contrast and large targets also apply while reading — plan only asked for shared tokens and one aria-label — cost if wrong: one more inline script to keep in sync with index.html.
+Task 13: Note: extension popup reviewed, no change — text colors #e9ebf3/#8f96ab/#f2b84b on #12151d are all above 4.5:1; disabled options are exempt.
+Task 13: complete (commit 801802d, tests: tests/test_reader.py -> 6 passed, 1 skipped (axe); red seen 5/7 before impl; screenshot of reader in light theme checked)
+Task 14: Ruling: reflow is tested at 320 CSS px (WCAG 1.4.10's actual threshold) instead of the plan's 640 px (that is only 200 %) — stricter; it exposed overflow in library grids and the games toolbar, now fixed — cost if wrong: none.
+Task 14: Ruling: added a rendered-page text-contrast test (test_text_contrast_in_rendered_page, 5 views x 4 theme/contrast combos) because axe cannot run offline — it composites real backgrounds and checks 4.5:1 / 3:1 for large text; elements over gradients/images are skipped — cost if wrong: gradient/image-backed text is unchecked until axe runs.
+Task 14: Real defects found by the new tests and fixed: dialog aria-labelledby pointing at a missing id; plain checkboxes without a visible focus ring (input:focus{outline:none} applied to checkboxes); overflow at 320 px in library and games.
+Task 14: complete (commit 4eb058c, tests: tests -> 175 passed, 5 skipped (all axe); negative controls confirmed the contrast, target-size and reflow tests can fail)

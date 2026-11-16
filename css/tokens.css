@@ -1,0 +1,16 @@
+/* Токены. Тема и контраст выставляются на <html> через data-theme, data-contrast (см. js/a11y/prefs.js). */
+:root{--ink:#0d0f14;--panel:#12151d;--raise:#1a1e2a;--text:#e9ebf3;--mute:#8f96ab;--ph:#8f96ab;
+--line:rgba(170,185,230,.13);--line2:rgba(170,185,230,.24);--edge:#656c82;
+--amber:#f2b84b;--amber-ink:#1c1406;--amber-fg:#f2b84b;--focus:#f2b84b;--danger:#ff7d7d;--ok:#6ee7a8;
+--float:rgba(22,26,36,.94);--ink0:rgba(13,15,20,0);color-scheme:dark;
+--sans:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+:root[data-theme=light]{--ink:#f4f5f9;--panel:#ffffff;--raise:#e9ecf3;--text:#14161d;--mute:#565d73;--ph:#5b6278;
+--line:rgba(20,24,48,.14);--line2:rgba(20,24,48,.26);--edge:#767d92;
+--amber-fg:#7a4f00;--focus:#7a4f00;--danger:#b3261e;--ok:#0b7a3f;--float:rgba(255,255,255,.97);--ink0:rgba(244,245,249,0);color-scheme:light}
+:root[data-contrast=high]{--ink:#000000;--panel:#0a0c10;--raise:#14171f;--text:#ffffff;--mute:#c5cbdc;--ph:#b4bbcd;
+--line:rgba(255,255,255,.35);--line2:rgba(255,255,255,.6);--edge:#aab2c8;
+--amber:#ffc95c;--amber-ink:#000000;--amber-fg:#ffc95c;--focus:#ffd479;--danger:#ff9a9a;--ok:#86f0b9;--float:rgba(10,12,16,.98);--ink0:rgba(0,0,0,0)}
+:root[data-theme=light][data-contrast=high]{--ink:#ffffff;--panel:#ffffff;--raise:#eef0f5;--text:#000000;--mute:#2b3040;--ph:#363c4f;
+--line:rgba(0,0,0,.45);--line2:rgba(0,0,0,.7);--edge:#3a4052;
+--amber:#f2b84b;--amber-ink:#000000;--amber-fg:#5c3b00;--focus:#5c3b00;--danger:#8f0f08;--ok:#065c2d;--float:#ffffff;--ink0:rgba(255,255,255,0)}
+:root{font-size:100%}:root[data-scale="125"]{font-size:125%}:root[data-scale="150"]{font-size:150%}

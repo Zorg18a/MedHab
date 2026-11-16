@@ -1,0 +1,4 @@
+/* Общие для index, плеера и читалки: скрытый от глаз текст и кнопка «Перейти к содержимому». */
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:fixed;left:.5rem;top:-4rem;z-index:100;padding:.6rem 1rem;border:2px solid var(--focus);border-radius:8px;background:var(--panel);color:var(--text);font-weight:600}
+.skip:focus{top:.5rem}

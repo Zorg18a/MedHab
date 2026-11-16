@@ -1,0 +1,21 @@
+{
+ "folder": "C:\\Users\\Admin\\Downloads\\MediaHub",
+ "workers": 5,
+ "skip": true,
+ "cookie_file": "",
+ "cookie_browser": "chrome",
+ "games_root": "G:\\PG",
+ "show_browser": false,
+ "browser": "msedge",
+ "limit_mb": 0,
+ "manga_via": "auto",
+ "games_check_hours": 0,
+ "res": "720",
+ "afmt": "mp3",
+ "subs_on": false,
+ "subs_langs": "ru,en",
+ "thumbs": true,
+ "depth": "1",
+ "maxp": 100,
+ "videos": true
+}
